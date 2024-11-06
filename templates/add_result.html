@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Ergebnis hinzufügen</title>
+    <style>
+        /* Animation-Overlay für den Up-Rank */
+        #uprankAnimation {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 1.5em;
+        }
+        #uprankAnimation img {
+            width: 150px;
+            height: auto;
+        }
+        #okButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4CAF50; /* Grüne Farbe */
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        #okButton:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function validatePlayers() {
+            const selectedPlayers = [];
+            for (let i = 1; i <= 4; i++) {
+                const player = document.querySelector(`[name="player${i}"]`).value;
+                selectedPlayers.push(player);
+            }
+
+            // Überprüfen auf Duplikate
+            const uniquePlayers = new Set(selectedPlayers);
+            if (uniquePlayers.size !== selectedPlayers.length) {
+                alert("Es dürfen keine Duplikate bei den Spielern sein!");
+                return false;
+            }
+
+            // Bedingung für Up-Rank prüfen
+            if (checkUpRankCondition()) {
+                showUpRankAnimation(); // Animation anzeigen
+                return false; // Verhindert das sofortige Absenden des Formulars
+            }
+            return true; // Formular absenden
+        }
+
+        function checkUpRankCondition() {
+            // Beispiel: Falls der erste Spieler ein höheres Ranking erreicht hat
+            // Definieren Sie hier Ihre Logik für den Up-Rank
+            return true;  // Vorübergehend auf true gesetzt, um die Animation zu testen
+        }
+
+        function showUpRankAnimation() {
+            const animationOverlay = document.getElementById('uprankAnimation');
+            animationOverlay.style.display = 'flex';  // Animation anzeigen
+        }
+
+        function hideUpRankAnimation() {
+            document.getElementById('uprankAnimation').style.display = 'none'; // Overlay ausblenden
+            document.querySelector("form").submit();  // Formular absenden
+        }
+    </script>
+</head>
+<body>
+    <div id="uprankAnimation">
+        <p>Uprank!</p>
+        <img src="{{ url_for('static', filename='images/rankup2.gif') }}" alt="Up-Rank Animation">
+        <button id="okButton" onclick="hideUpRankAnimation()">OK</button>
+    </div>
+
+    <h1>Ergebnis hinzufügen</h1>
+    <form method="post" action="{{ url_for('add_result') }}" onsubmit="return validatePlayers()">
+        <label>Spieler und Platzierung:</label><br>
+        {% for i in range(1, 5) %}
+            <label for="player{{ i }}">Platz {{ i }}:</label>
+            <select name="player{{ i }}">
+                <option value="" selected disabled>Wähle eine*n Spieler*in...</option>
+                {% for (player, rank_image) in players_with_rank_images %}
+                    <option value="{{ player.name }}">{{ player.name }}</option>
+                {% endfor %}
+            </select>
+            <span id="rank{{ i }}"></span><br><br>
+        {% endfor %}
+
+        <button type="submit">Ergebnis speichern</button>
+    </form>
+    <a href="{{ url_for('index') }}">Zurück zur Rangliste</a>
+</body>
+</html>

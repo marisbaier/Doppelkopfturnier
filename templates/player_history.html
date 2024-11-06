@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ player.name }} - Spielerhistorie</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <!-- Chart.js einbinden -->
+    <style>
+        /* Container für zentrierten Inhalt */
+        .content-container {
+            max-width: 500px; /* Festgelegte maximale Breite */
+            margin: 0 auto;    /* Zentrieren */
+            padding: 20px;
+        }
+
+        table {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <h1 style="text-align: center;">Historie von {{ player.name }}</h1>
+
+        <div id="chartContainer" style="width: 500px; height: 300px; margin: 0 auto;">
+            <canvas id="ratingChart"></canvas>
+        </div>
+
+        <table border="1">
+            <tr>
+                <th>Datum</th>
+                <th>Ergebnis</th>
+                <th>Neues Rating</th>
+            </tr>
+            {% for match in matches %}
+            <tr>
+                <td>{{ match.timestamp.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                <td>{{ match.score_change }}</td>
+                <td>{{ match.new_rating }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <a href="{{ url_for('index') }}">Zurück zur Rangliste</a>
+    </div>
+
+    <script>
+        // Daten für das Diagramm vorbereiten
+        const playerRatings = {
+            // Den Startwert und dann die echten Runden hinzufügen
+            labels: ["Start", {% for match in matches %} "Runde {{ match.round_number }}", {% endfor %}],
+            datasets: [
+                {
+                    label: '{{ player.name }}',
+                    // Anfangswert von 1300 hinzufügen, gefolgt von den anderen Werten
+                    data: [1300, {% for match in matches %} {{ match.new_rating }}, {% endfor %}],
+                    borderColor: 'rgba(0, 123, 255, 1)', // Eigene Farbe für den Spieler
+                    backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                    fill: true,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                },
+                // Andere Spieler hinzufügen
+                {% for other_player in other_players %}
+                {
+                    label: '{{ other_player.name }}',
+                    // Anfangswert von 1300 für jeden anderen Spieler hinzufügen
+                    data: [1300, {% for match in other_player.matches %} {{ match.new_rating }}, {% endfor %}],
+                    borderColor: 'rgba(200, 200, 200, 1)',  // Farbe für andere Spieler
+                    backgroundColor: 'rgba(200, 200, 200, 0.2)',
+                    fill: false,
+                    borderWidth: 1,
+                    pointRadius: 3,
+                    borderDash: [5, 5]  // Gestrichelte Linie für andere Spieler
+                },
+                {% endfor %}
+            ]
+        };
+    
+        // Chart.js Diagramm erstellen
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',  // Liniendiagramm
+            data: playerRatings,
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Spiele (Runden)'  // X-Achsen-Label
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Rating'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            filter: function(item, chart) {
+                                // Nur Hauptspieler in der Legende anzeigen
+                                return item.text === '{{ player.name }}';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+    
+    
+    
+</body>
+</html>

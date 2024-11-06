@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Rangliste</title>
+    <style>
+        table {
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Aktuelle Rangliste</h1>
+    <table border="1">
+        <tr>
+            <th>Rang</th>
+            <th>Spieler</th>
+            <th>Punkte</th>
+            <th>rank</th>
+        </tr>
+        {% for rank, player, rank_image in ranked_players %}
+        <tr>
+            <td>{{ rank }}</td>
+            <td><a href="{{ url_for('player_history', player_id=player.id) }}">{{ player.name }}</a></td>
+            <td>{{ player.rating }}</td>
+            <td><img src="{{ url_for('static', filename='images/' + rank_image) }}" alt="Rang Symbol" width="50"></td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('add_result') }}">Ergebnis hinzufügen</a>
+    <a href="{{ url_for('add_player') }}">Neuen Spieler hinzufügen</a>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Spieler hinzufügen</title>
+</head>
+<body>
+    <h1>Neuen Spieler hinzufügen</h1>
+    <form action="{{ url_for('add_player') }}" method="post">
+        <label for="name">Spielername:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Hinzufügen</button>
+    </form>
+    <a href="{{ url_for('index') }}">Zurück zur Rangliste</a>
+</body>
+</html>
